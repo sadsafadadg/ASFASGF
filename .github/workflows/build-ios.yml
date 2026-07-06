@@ -17,6 +17,9 @@ jobs:
         with:
           dotnet-version: "9.0.x"
 
+      - name: Select Xcode
+        run: sudo xcode-select -p
+
       - name: Install MAUI workload
         run: dotnet workload install maui
 
@@ -26,8 +29,9 @@ jobs:
       - name: Publish iOS
         run: |
           dotnet publish -f net9.0-ios -c Release \
+            -p:ArchiveOnBuild=true \
             -p:BuildIpa=true \
-            -p:CodesignKey="" \
+            -p:CodesignKey=- \
             -p:CodesignProvision=""
 
       - name: Upload IPA
@@ -37,3 +41,4 @@ jobs:
           path: |
             **/bin/Release/net9.0-ios/**/*.ipa
             **/bin/Release/net9.0-ios/**/*.app
+          if-no-files-found: error
