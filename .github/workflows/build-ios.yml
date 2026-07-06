@@ -1,0 +1,39 @@
+name: Build iOS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Publish iOS
+        run: |
+          dotnet publish -f net9.0-ios -c Release \
+            -p:BuildIpa=true \
+            -p:CodesignKey="" \
+            -p:CodesignProvision=""
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: MortgageCalc-iOS
+          path: |
+            **/bin/Release/net9.0-ios/**/*.ipa
+            **/bin/Release/net9.0-ios/**/*.app

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MortgageCalc.MainPage"
+             Title="叼毛房贷计算器"
+             BackgroundColor="#F0F2F5"
+             Shell.NavBarIsVisible="False">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="10">
+
+            <!-- 标题 -->
+            <Label Text="叼毛房贷计算器"
+                   FontSize="22" FontAttributes="Bold"
+                   TextColor="#1A73E8"
+                   HorizontalOptions="Center"
+                   Margin="0,16,0,8" />
+
+            <!-- 输入卡片 -->
+            <Border BackgroundColor="White" StrokeShape="RoundRectangle 12"
+                    Stroke="Transparent" Padding="16">
+                <VerticalStackLayout Spacing="14">
+
+                    <!-- 贷款总额 -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="贷款总额" FontSize="13" TextColor="#5F6368" />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <Entry x:Name="LoanAmount" Text="600000"
+                                   Keyboard="Numeric" FontSize="18" FontAttributes="Bold"
+                                   HorizontalTextAlignment="End" BackgroundColor="#F8F9FA" />
+                            <Label Grid.Column="1" Text="元" VerticalOptions="Center"
+                                   TextColor="#5F6368" FontSize="14" />
+                        </Grid>
+                    </VerticalStackLayout>
+
+                    <!-- 年利率 -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="年利率" FontSize="13" TextColor="#5F6368" />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <Entry x:Name="AnnualRate" Text="2.6"
+                                   Keyboard="Numeric" FontSize="18" FontAttributes="Bold"
+                                   HorizontalTextAlignment="End" BackgroundColor="#F8F9FA" />
+                            <Label Grid.Column="1" Text="%" VerticalOptions="Center"
+                                   TextColor="#5F6368" FontSize="14" />
+                        </Grid>
+                    </VerticalStackLayout>
+
+                    <!-- 贷款年限 -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="贷款年限" FontSize="13" TextColor="#5F6368" />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <Entry x:Name="LoanYears" Text="30"
+                                   Keyboard="Numeric" FontSize="18" FontAttributes="Bold"
+                                   HorizontalTextAlignment="End" BackgroundColor="#F8F9FA" />
+                            <Label Grid.Column="1" Text="年" VerticalOptions="Center"
+                                   TextColor="#5F6368" FontSize="14" />
+                        </Grid>
+                    </VerticalStackLayout>
+
+                    <BoxView HeightRequest="1" Color="#DADCE0" Margin="0,2" />
+
+                    <!-- 还款方式 -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="还款方式" FontSize="13" TextColor="#5F6368" />
+                        <HorizontalStackLayout Spacing="8">
+                            <RadioButton x:Name="MethodEqualInstallment"
+                                         Content="等额本息" IsChecked="True" GroupName="method" />
+                            <RadioButton x:Name="MethodEqualPrincipal"
+                                         Content="等额本金" GroupName="method" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+
+                    <BoxView HeightRequest="1" Color="#DADCE0" Margin="0,2" />
+
+                    <!-- ======== 提前还款 ======== -->
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                        <Switch x:Name="EarlySwitch" IsToggled="False"
+                                OnColor="#1A73E8" Toggled="OnEarlyToggled" />
+                        <Label Grid.Column="1" Text="提前还款"
+                               VerticalOptions="Center" FontSize="15" FontAttributes="Bold" />
+                        <Button x:Name="AddEarlyBtn" Grid.Column="2" Text="+ 添加"
+                                FontSize="13" BackgroundColor="#E8F0FE" TextColor="#1A73E8"
+                                CornerRadius="6" Padding="12,6" IsVisible="False"
+                                Clicked="OnAddEarlyClicked" />
+                    </Grid>
+
+                    <!-- 多笔提前还款列表 -->
+                    <VerticalStackLayout x:Name="EarlyList" Spacing="10"
+                                         IsVisible="False" Margin="0,4,0,0" />
+
+                    <!-- 计算按钮 -->
+                    <Button x:Name="CalcBtn" Text="开始计算"
+                            BackgroundColor="#1A73E8" TextColor="White"
+                            FontSize="17" FontAttributes="Bold"
+                            CornerRadius="10" HeightRequest="48"
+                            Margin="0,6,0,0"
+                            Clicked="OnCalculateClicked" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- 结果卡片 -->
+            <Border x:Name="ResultCard" IsVisible="False"
+                    BackgroundColor="White" StrokeShape="RoundRectangle 12"
+                    Stroke="Transparent" Padding="16">
+                <VerticalStackLayout Spacing="12">
+
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto"
+                          ColumnSpacing="8" RowSpacing="8">
+
+                        <Border Grid.Row="0" Grid.Column="0"
+                                BackgroundColor="#E8F0FE" StrokeShape="RoundRectangle 8"
+                                Stroke="#D2E3FC" Padding="12">
+                            <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                                <Label Text="每月还款" FontSize="12" TextColor="#5F6368"
+                                       HorizontalOptions="Center" />
+                                <Label x:Name="ResultMonthlyPayment" Text="-"
+                                       FontSize="18" FontAttributes="Bold"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Grid.Row="0" Grid.Column="1"
+                                BackgroundColor="#F8F9FA" StrokeShape="RoundRectangle 8"
+                                Stroke="Transparent" Padding="12">
+                            <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                                <Label Text="还款总额" FontSize="12" TextColor="#5F6368"
+                                       HorizontalOptions="Center" />
+                                <Label x:Name="ResultTotalPayment" Text="-"
+                                       FontSize="18" FontAttributes="Bold"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Grid.Row="1" Grid.Column="0"
+                                BackgroundColor="#F8F9FA" StrokeShape="RoundRectangle 8"
+                                Stroke="Transparent" Padding="12">
+                            <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                                <Label Text="利息总额" FontSize="12" TextColor="#5F6368"
+                                       HorizontalOptions="Center" />
+                                <Label x:Name="ResultTotalInterest" Text="-"
+                                       FontSize="16" FontAttributes="Bold"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Grid.Row="1" Grid.Column="1"
+                                BackgroundColor="#F8F9FA" StrokeShape="RoundRectangle 8"
+                                Stroke="Transparent" Padding="12">
+                            <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                                <Label Text="节省利息" FontSize="12" TextColor="#5F6368"
+                                       HorizontalOptions="Center" />
+                                <Label x:Name="ResultSavedInterest" Text="-"
+                                       FontSize="14" FontAttributes="Bold" TextColor="#E63946"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Label x:Name="ResultEarlyNote" Grid.Row="2" Grid.ColumnSpan="2"
+                               FontSize="12" TextColor="#E63946"
+                               HorizontalOptions="Center" IsVisible="False" />
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="#DADCE0" />
+
+                    <!-- 视图切换 -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="0"
+                          BackgroundColor="#F0F2F5" Padding="3">
+                        <Button x:Name="ViewMonthly" Text="月供明细"
+                                BackgroundColor="White" TextColor="#1A73E8"
+                                FontSize="14" CornerRadius="6"
+                                Clicked="OnViewMonthlyClicked" />
+                        <Button x:Name="ViewYearly" Text="年供明细"
+                                Grid.Column="1"
+                                BackgroundColor="Transparent" TextColor="#5F6368"
+                                FontSize="14" CornerRadius="6"
+                                Clicked="OnViewYearlyClicked" />
+                    </Grid>
+
+                    <!-- 表头 -->
+                    <Grid x:Name="TableHeader" ColumnDefinitions="35,60,60,60,70"
+                          BackgroundColor="#F0F2F5" Padding="8,10" ColumnSpacing="1">
+                        <Label Text="期数" FontSize="12" FontAttributes="Bold"
+                               TextColor="#5F6368" HorizontalTextAlignment="Center" />
+                        <Label Grid.Column="1" Text="月供" FontSize="12" FontAttributes="Bold"
+                               TextColor="#5F6368" HorizontalTextAlignment="End" />
+                        <Label Grid.Column="2" Text="本金" FontSize="12" FontAttributes="Bold"
+                               TextColor="#5F6368" HorizontalTextAlignment="End" />
+                        <Label Grid.Column="3" Text="利息" FontSize="12" FontAttributes="Bold"
+                               TextColor="#5F6368" HorizontalTextAlignment="End" />
+                        <Label Grid.Column="4" Text="剩余本金" FontSize="12" FontAttributes="Bold"
+                               TextColor="#5F6368" HorizontalTextAlignment="End" />
+                    </Grid>
+
+                    <CollectionView x:Name="ResultTable" HeightRequest="400"
+                                    ItemsLayout="VerticalList">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="35,60,60,60,70"
+                                      Padding="8,8" ColumnSpacing="1">
+                                    <Label Text="{Binding Period}" FontSize="12"
+                                           HorizontalTextAlignment="Center"
+                                           LineBreakMode="NoWrap"
+                                           TextColor="{Binding PeriodColor}" />
+                                    <Label Grid.Column="1" Text="{Binding Payment}"
+                                           FontSize="12" HorizontalTextAlignment="End"
+                                           LineBreakMode="NoWrap" />
+                                    <Label Grid.Column="2" Text="{Binding Principal}"
+                                           FontSize="12" HorizontalTextAlignment="End"
+                                           LineBreakMode="NoWrap" />
+                                    <Label Grid.Column="3" Text="{Binding Interest}"
+                                           FontSize="12" HorizontalTextAlignment="End"
+                                           LineBreakMode="NoWrap" />
+                                    <Label Grid.Column="4" Text="{Binding Balance}"
+                                           FontSize="12" HorizontalTextAlignment="End"
+                                           TextColor="#5F6368" LineBreakMode="NoWrap" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+            <BoxView HeightRequest="24" Color="Transparent" />
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

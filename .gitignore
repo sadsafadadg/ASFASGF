@@ -1,0 +1,11 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.log
+*.vs/
+
+## macOS
+.DS_Store
